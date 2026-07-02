@@ -35,7 +35,9 @@ app.get("/login", checkAuthenticated, (req, res) => {
   console.log(req.session.flash.error);
   // res.render("login.ejs");
 });
-app.post("/signup", db.signup);
+app.post("/signup", db.signup, (req, res) =>{
+  console.log(req.session.flash.error);
+});
 app.get('/users', db.getUsers)
 // app.get('/users/:id', db.getUserById)
 app.post('/users', db.createUser)

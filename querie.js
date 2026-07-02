@@ -75,12 +75,15 @@ const deleteUser = async (request, response) => {
 }
 
 const signup = async (req, res) => {
-  let { name, email, password } = req.body;
+  console.log("cadastra aí")
+  let { name, surname, email, password } = req.body;
+  console.log(req.body);
 
   let errors = [];
 
   console.log({
     name,
+    surname,
     email,
     password,
   });
@@ -105,16 +108,19 @@ const signup = async (req, res) => {
           console.log("Email already registered")
         } else {
           pool.query(
-            `INSERT INTO cliente (name, email, password)
-                VALUES ($1, $2, $3)
+            `INSERT INTO cliente (name, email, password, surname)
+                VALUES ($1, $3, $4, $2)
                 RETURNING id, password`,
-            [name, email, hashedPassword],
+            [name, surname, email, hashedPassword],
             (err, results) => {
               if (err) {
                 throw err;
               }
               console.log(results.rows);
+              console.log("You are now registered. Please log in");
               req.flash("success_msg", "You are now registered. Please log in");
+              res.status(201).send("You are now registered. Please log in");
+              // console.log(res);
               //res.redirect("/login");
             }
           );
