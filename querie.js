@@ -152,13 +152,27 @@ const getIngredienteById = async (request, response) => {
   }
 }
 
+const getIngredienteByType = async (request, response) => {
+  const type = request.params.type;
+
+  try {
+    console.log(type)
+    console.log("Ta nan?")
+    const results = await pool.query('SELECT * FROM ingredientes WHERE type = $1', [type])
+    console.log(results.rows)
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
 const createIngrediente = async (request, response) => {
-  const { name, category, calories } = request.body
+  const { name, category, calories, type } = request.body
 
   try {
     const results = await pool.query(
-      'INSERT INTO ingredientes (name, category, calories) VALUES ($1, $2, $3) RETURNING *',
-      [name, category, calories]
+      'INSERT INTO ingredientes (name, category, calories, type) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, category, calories, type]
     )
     response.status(201).send(`Ingredient added with ID: ${results.rows[0].id}`)
   } catch (error) {
@@ -168,13 +182,14 @@ const createIngrediente = async (request, response) => {
 
 const updateIngrediente = async (request, response) => {
   const id = parseInt(request.params.id, 10)
-  const { name, category, calories } = request.body
+  const { name, category, calories, type } = request.body
 
   try {
-    await pool.query('UPDATE ingredientes SET name = $1, category = $2, calories = $3 WHERE id = $4', [
+    await pool.query('UPDATE ingredientes SET name = $1, category = $2, calories = $3, type = $4 WHERE id = $5', [
       name,
       category,
       calories,
+      type,
       id,
     ])
     response.status(200).send(`Ingredient modified with ID: ${id}`)
@@ -217,14 +232,29 @@ const getLancheById = async (request, response) => {
 }
 
 const createLanche = async (request, response) => {
-  const { name, ingredientes, calorias } = request.body
+  const { name, calorias, cliente_id } = request.body
 
   try {
     const results = await pool.query(
-      'INSERT INTO lanches (name, ingredientes, calorias) VALUES ($1, $2, $3) RETURNING *',
-      [name, ingredientes, calorias]
+      'INSERT INTO lanches (name, calorias, cliente_id) VALUES ($1, $2, $3) RETURNING *',
+      [name, calorias, cliente_id]
     )
     response.status(201).send(`Lanche added with ID: ${results.rows[0].id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+// CREATE INGREDIENTE LANCHE RELATIONSHIP
+const createILRelationship = async (request, response) => {
+  const { lanche_id, ingrediente_id } = request.body;
+
+  try {
+    const results = await pool.query(
+      'INSERT INTO lanches_ingredientes (lanche_id, ingrediente_id) VALUES ($1, $2) RETURNING *',
+      [lanche_id, ingrediente_id]
+    )
+    response.status(201).send(`Relationship added with ID: ${results.rows[0].id}`)
   } catch (error) {
     throw error
   }
@@ -356,12 +386,14 @@ export {
   signup,
   getIngredientes,
   getIngredienteById,
+  getIngredienteByType,
   createIngrediente,
   updateIngrediente,
   deleteIngrediente,
   getLanches,
   getLancheById,
   createLanche,
+  createILRelationship,
   updateLanche,
   deleteLanche,
   getHamburgerIngredients,

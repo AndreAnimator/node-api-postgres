@@ -52,6 +52,7 @@ app.post('/login', checkAuthenticated, passport.authenticate("local", {
 // Ingredientes
 app.get('/ingredientes', db.getIngredientes)
 app.get('/ingredientes/:id', db.getIngredienteById)
+app.get('/ingrediente/:type', db.getIngredienteByType)
 app.post('/ingredientes', db.createIngrediente)
 app.put('/ingredientes/:id', db.updateIngrediente)
 app.delete('/ingredientes/:id', db.deleteIngrediente)
@@ -60,6 +61,7 @@ app.delete('/ingredientes/:id', db.deleteIngrediente)
 app.get('/lanches', db.getLanches)
 app.get('/lanches/:id', db.getLancheById)
 app.post('/lanches', db.createLanche)
+app.post('/lanches/ingredientes', db.createILRelationship)
 app.put('/lanches/:id', db.updateLanche)
 app.delete('/lanches/:id', db.deleteLanche)
 
