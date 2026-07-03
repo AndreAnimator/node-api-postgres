@@ -130,11 +130,244 @@ const signup = async (req, res) => {
   }
 }
 
+const getIngredientes = async (request, response) => {
+  try {
+    const results = await pool.query('SELECT * FROM ingredientes ORDER BY id ASC')
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
+const getIngredienteById = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    console.log(id)
+    console.log("Ta nan?")
+    const results = await pool.query('SELECT * FROM ingredientes WHERE id = $1', [id])
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
+const createIngrediente = async (request, response) => {
+  const { name, category, calories } = request.body
+
+  try {
+    const results = await pool.query(
+      'INSERT INTO ingredientes (name, category, calories) VALUES ($1, $2, $3) RETURNING *',
+      [name, category, calories]
+    )
+    response.status(201).send(`Ingredient added with ID: ${results.rows[0].id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateIngrediente = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+  const { name, category, calories } = request.body
+
+  try {
+    await pool.query('UPDATE ingredientes SET name = $1, category = $2, calories = $3 WHERE id = $4', [
+      name,
+      category,
+      calories,
+      id,
+    ])
+    response.status(200).send(`Ingredient modified with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteIngrediente = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    await pool.query('DELETE FROM ingredientes WHERE id = $1', [id])
+    response.status(200).send(`Ingredient deleted with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const getLanches = async (request, response) => {
+  try {
+    const results = await pool.query('SELECT * FROM lanches ORDER BY id ASC')
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
+const getLancheById = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    console.log(id)
+    console.log("Ta nan?")
+    const results = await pool.query('SELECT * FROM lanches WHERE id = $1', [id])
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
+const createLanche = async (request, response) => {
+  const { name, ingredientes, calorias } = request.body
+
+  try {
+    const results = await pool.query(
+      'INSERT INTO lanches (name, ingredientes, calorias) VALUES ($1, $2, $3) RETURNING *',
+      [name, ingredientes, calorias]
+    )
+    response.status(201).send(`Lanche added with ID: ${results.rows[0].id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateLanche = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+  const { name, ingredientes, calorias } = request.body
+
+  try {
+    await pool.query('UPDATE lanches SET name = $1, ingredientes = $2, calorias = $3 WHERE id = $4', [
+      name,
+      ingredientes,
+      calorias,
+      id,
+    ])
+    response.status(200).send(`Lanche modified with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteLanche = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    await pool.query('DELETE FROM lanches WHERE id = $1', [id])
+    response.status(200).send(`Lanche deleted with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+/* acho eu que não precisa
+const getHamburgers = async (request, response) => {
+  try {
+    const results = await pool.query('SELECT * FROM cliente ORDER BY id ASC')
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+*/
+
+const getHamburgerIngredients = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    const results = await pool.query('SELECT ingredients FROM hamburger WHERE id = $1', [id])
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
+const getHamburgerIngredientsByCategory = async (request, response) => {
+  /* Separa no front isso? não sei ainda */
+}
+
+const createHamburger = async (request, response) => {
+  const { ingredientes } = request.body
+
+  try {
+    const results = await pool.query(
+      'INSERT INTO hamburger (ingredientes) VALUES ($1) RETURNING *',
+      [name]
+    )
+    response.status(201).send(`Hamburger added with ID: ${results.rows[0].id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateHamburger = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+  const { ingredientes } = request.body
+
+  try {
+    await pool.query('UPDATE hamburger SET ingredientes = $1 WHERE id = $2', [
+      ingredientes,
+      id,
+    ])
+    response.status(200).send(`Hamburger modified with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteHamburger = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    await pool.query('DELETE FROM hamburger WHERE id = $1', [id])
+    response.status(200).send(`Hamburger deleted with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const getHamburgerFavoritosByUser = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+
+  try {
+    await pool.query('SELECT hamburger_favoritos FROM cliete WHERE id = $1', [id])
+    response.status(200).json(results.rows)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateHamburgerFavoritoByUser = async (request, response) => {
+  const id = parseInt(request.params.id, 10)
+  const { lanches } = request.body
+
+  try {
+    await pool.query('UPDATE cliente SET hamburger_favorites = $1 WHERE id = $2', [lanches, id])
+    response.status(200).send(`Lanches atualizados with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
 export {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
-  signup
+  signup,
+  getIngredientes,
+  getIngredienteById,
+  createIngrediente,
+  updateIngrediente,
+  deleteIngrediente,
+  getLanches,
+  getLancheById,
+  createLanche,
+  updateLanche,
+  deleteLanche,
+  getHamburgerIngredients,
+  createHamburger,
+  updateHamburger,
+  deleteHamburger,
+  getHamburgerFavoritosByUser,
+  updateHamburgerFavoritoByUser
 }

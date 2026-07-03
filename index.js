@@ -49,6 +49,30 @@ app.post('/login', checkAuthenticated, passport.authenticate("local", {
     failureFlash: true
   })
 )
+// Ingredientes
+app.get('/ingredientes', db.getIngredientes)
+app.get('/ingredientes/:id', db.getIngredienteById)
+app.post('/ingredientes', db.createIngrediente)
+app.put('/ingredientes/:id', db.updateIngrediente)
+app.delete('/ingredientes/:id', db.deleteIngrediente)
+
+//lanches
+app.get('/lanches', db.getLanches)
+app.get('/lanches/:id', db.getLancheById)
+app.post('/lanches', db.createLanche)
+app.put('/lanches/:id', db.updateLanche)
+app.delete('/lanches/:id', db.deleteLanche)
+
+//hamburger
+app.get('/hamburgers/:id', db.getHamburgerIngredients)
+app.post('/hamburgers', db.createHamburger)
+app.put('/hamburgers/:id', db.updateHamburger)
+app.delete('/hamburgers/:id', db.deleteHamburger)
+
+//hamburger favoritos
+
+app.get('/hamburgers-favorito/:id', db.getHamburgerIngredients)
+app.put('/hamburgers-favorito/:id', db.updateHamburgerFavoritoByUser)
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
