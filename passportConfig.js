@@ -28,6 +28,8 @@ function initialize(passport) {
 
         if (results.rows.length > 0) {
           const user = results.rows[0];
+          console.log("tem muitos resultados");
+          console.log(user);
 
           bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) {
@@ -36,6 +38,7 @@ function initialize(passport) {
             }
             if (isMatch) {
               console.log("Deu match");
+              console.log(user);
               return done(null, user);
             } else {
               console.log("Password is incorrect");
@@ -61,6 +64,7 @@ function initialize(passport) {
   passport.serializeUser((user, done) => done(null, user.id));
 
   passport.deserializeUser((id, done) => {
+    console.log("Ta deserializando?")
     pool.query(`SELECT * FROM cliente WHERE id = $1`, [id], (err, results) => {
       if (err) {
         console.log("Deu erro no deserialize User");

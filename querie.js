@@ -33,6 +33,12 @@ const getUserById = async (request, response) => {
   }
 }
 
+const getUserByEmail = async (email) => {
+      const querie = await pool.query('SELECT * FROM cliente WHERE email = $1', [email]);
+      let user = querie.rows[0];
+      return user;
+}
+
 const createUser = async (request, response) => {
   const { name, email } = request.body
 
@@ -159,7 +165,7 @@ const getIngredienteByType = async (request, response) => {
     console.log(type)
     console.log("Ta nan?")
     const results = await pool.query('SELECT * FROM ingredientes WHERE type = $1', [type])
-    console.log(results.rows)
+    // console.log(results.rows)
     response.status(200).json(results.rows)
   } catch (error) {
     throw error
@@ -239,8 +245,9 @@ const createLanche = async (request, response) => {
       'INSERT INTO lanches (name, calorias, cliente_id) VALUES ($1, $2, $3) RETURNING *',
       [name, calorias, cliente_id]
     )
-    response.status(201).send(`Lanche added with ID: ${results.rows[0].id}`)
+    response.status(201).send(`${results.rows[0].id}`)
   } catch (error) {
+    console.log("erro ao adicionar lanche", error);
     throw error
   }
 }
@@ -380,6 +387,7 @@ const updateHamburgerFavoritoByUser = async (request, response) => {
 export {
   getUsers,
   getUserById,
+  getUserByEmail,
   createUser,
   updateUser,
   deleteUser,

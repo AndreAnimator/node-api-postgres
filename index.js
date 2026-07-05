@@ -5,6 +5,8 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import flash from "express-flash";
 import session from "express-session";
+import pl from "passport-local"
+const LocalStrategy = pl.Strategy;
 const app = express()
 const port = 3000
 
@@ -22,7 +24,11 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24, // TTL for the session
+    },
   })
 );
 app.use(cors())
@@ -32,7 +38,9 @@ app.use(flash());
 
 app.get("/login", checkAuthenticated, (req, res) => {
   // flash sets a messages variable. passport sets the error message
-  console.log(req.session.flash.error);
+  // console.log(req.session.flash.error);
+  console.log("alouu");
+  console.log(req.session.passport);
   // res.render("login.ejs");
 });
 app.post("/signup", db.signup, (req, res) =>{
@@ -78,7 +86,8 @@ app.put('/hamburgers-favorito/:id', db.updateHamburgerFavoritoByUser)
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
-    return res;
+    console.log("loga");
+    return res.json({user: req.user});
   }
   next();
 }
