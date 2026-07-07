@@ -81,6 +81,19 @@ app.post('/login', checkAuthenticated, passport.authenticate("local", {
     failureFlash: true,
   })
 )
+app.post('/logout', function(req, res, next){
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8100');
+  req.logout(function(err) {
+    if (err) {
+      console.log("Deu erro");
+      res.status(500).send("Something went wrong.");
+      return next(err); 
+    }
+    console.log("LOGOUT");
+    res.status(201).json(req.user);
+  });
+});
 // Ingredientes
 app.get('/ingredientes', db.getIngredientes)
 app.get('/ingredient/:id', db.getIngredienteById)
