@@ -149,8 +149,9 @@ const getIngredienteById = async (request, response) => {
   const id = parseInt(request.params.id, 10)
 
   try {
+    console.log("Pegando ingrediente por id");
     console.log(id)
-    console.log("Ta nan?")
+    console.log("Ta nan pra ingrediente?")
     const results = await pool.query('SELECT * FROM ingredientes WHERE id = $1', [id])
     response.status(200).json(results.rows)
   } catch (error) {
@@ -224,12 +225,27 @@ const getLanches = async (request, response) => {
   }
 }
 
+const getLanchesByUser = async (request, response) => {
+  console.log("usuario");
+  console.log(request.user);
+  const cliente_id = request.user.id;
+
+  try {
+    const results = await pool.query('SELECT * FROM lanches WHERE cliente_id = $1', [cliente_id]);
+    console.log("Resultados dos lanches de ", cliente_id);
+    console.log(results.rows);
+    response.status(200).json(results.rows);
+  } catch (error) {
+    throw error
+  }
+}
+
 const getLancheById = async (request, response) => {
   const id = parseInt(request.params.id, 10)
 
   try {
     console.log(id)
-    console.log("Ta nan?")
+    console.log("Ta nan pra lanche?")
     const results = await pool.query('SELECT * FROM lanches WHERE id = $1', [id])
     response.status(200).json(results.rows)
   } catch (error) {
@@ -238,7 +254,10 @@ const getLancheById = async (request, response) => {
 }
 
 const createLanche = async (request, response) => {
-  const { name, calorias, cliente_id } = request.body
+  const { name, calorias } = request.body
+  console.log("usuario");
+  console.log(request.user);
+  const cliente_id = request.user.id;
 
   try {
     const results = await pool.query(
@@ -254,14 +273,32 @@ const createLanche = async (request, response) => {
 
 // CREATE INGREDIENTE LANCHE RELATIONSHIP
 const createILRelationship = async (request, response) => {
-  const { lanche_id, ingrediente_id } = request.body;
+  const { lanche, ingrediente } = request.body;
+  console.log("algo deu mt errado aqui");
+  console.log(lanche, ingrediente);
 
   try {
     const results = await pool.query(
       'INSERT INTO lanches_ingredientes (lanche_id, ingrediente_id) VALUES ($1, $2) RETURNING *',
-      [lanche_id, ingrediente_id]
+      [lanche, ingrediente]
     )
     response.status(201).send(`Relationship added with ID: ${results.rows[0].id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const getILByID = async (request, response) => {
+  const lanche_id = parseInt(request.params.lanche_id, 10);
+  console.log("Pegou o id da relação??");
+  console.log(lanche_id);
+  try {
+    const results = await pool.query(
+      'SELECT ingrediente_id FROM lanches_ingredientes WHERE lanche_id = $1',
+      [lanche_id]
+    )
+    console.log(results.rows);
+    response.status(201).json(results.rows)
   } catch (error) {
     throw error
   }
@@ -399,9 +436,11 @@ export {
   updateIngrediente,
   deleteIngrediente,
   getLanches,
+  getLanchesByUser,
   getLancheById,
   createLanche,
   createILRelationship,
+  getILByID,
   updateLanche,
   deleteLanche,
   getHamburgerIngredients,

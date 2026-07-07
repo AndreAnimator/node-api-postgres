@@ -8,6 +8,25 @@ import session from "express-session";
 import pl from "passport-local"
 const LocalStrategy = pl.Strategy;
 const app = express()
+
+var whitelist = ['http://localhost:8100', "http://localhost:8100/login"]
+
+app.use(
+  cors({
+    origin: function(origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    credentials: true
+  })
+);
+/*
+app.use(cors());
+*/
 const port = 3000
 
 import * as initializePassport from "./passportConfig.js";
@@ -31,11 +50,16 @@ app.use(
     },
   })
 );
-app.use(cors())
+// app.use(cors({credentials: true, origin: 'http://localhost:8100'}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+app.get("/", cors(), (req, res) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8100');
+  res.status(201).json(req.user)
+});
 app.get("/login", checkAuthenticated, (req, res) => {
   // flash sets a messages variable. passport sets the error message
   // console.log(req.session.flash.error);
@@ -52,14 +76,14 @@ app.post('/users', db.createUser)
 app.put('/users/:id', db.updateUser)
 app.delete('/users/:id', db.deleteUser)
 app.post('/login', checkAuthenticated, passport.authenticate("local", {
-    successRedirect: "/users",
+    successRedirect: "/",
     failureRedirect: "/login",
-    failureFlash: true
+    failureFlash: true,
   })
 )
 // Ingredientes
 app.get('/ingredientes', db.getIngredientes)
-app.get('/ingredientes/:id', db.getIngredienteById)
+app.get('/ingredient/:id', db.getIngredienteById)
 app.get('/ingrediente/:type', db.getIngredienteByType)
 app.post('/ingredientes', db.createIngrediente)
 app.put('/ingredientes/:id', db.updateIngrediente)
@@ -67,9 +91,14 @@ app.delete('/ingredientes/:id', db.deleteIngrediente)
 
 //lanches
 app.get('/lanches', db.getLanches)
+app.get('/lanchesusers', db.getLanchesByUser)
 app.get('/lanches/:id', db.getLancheById)
-app.post('/lanches', db.createLanche)
+app.post('/lanches', db.createLanche, (req, res) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8100');
+})
 app.post('/lanches/ingredientes', db.createILRelationship)
+app.get('/lanchesingredientes/:lanche_id', db.getILByID)
 app.put('/lanches/:id', db.updateLanche)
 app.delete('/lanches/:id', db.deleteLanche)
 
