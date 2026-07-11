@@ -2,6 +2,7 @@ import 'dotenv/config'
 const { Pool } = pg
 import pg from 'pg'
 import bcrypt from "bcrypt"
+import * as controller from "./controller.js"
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -64,6 +65,21 @@ const updateUser = async (request, response) => {
       id,
     ])
     response.status(200).send(`User modified with ID: ${id}`)
+  } catch (error) {
+    throw error
+  }
+}
+
+const updatePassword = async (request, response) => {
+  const { email, password } = request.body
+
+  try {
+    let hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query('UPDATE cliente SET password = $1 WHERE email = $2', [
+      hashedPassword,
+      email,
+    ])
+    response.status(200).send(`User password changed with email: ${email}`)
   } catch (error) {
     throw error
   }
@@ -134,6 +150,19 @@ const signup = async (req, res) => {
       }
     );
   }
+}
+
+const forgotPassword = async (request, response) => {
+  try {
+    const { email } = request.body;
+    if (!email) throw Error("An email is required");
+    controller.sendEmail(email)
+    .then((response) => response.send(response.message))
+    .catch((error) => response.status(500).send(error.message));
+  } catch (error) {
+
+  }
+
 }
 
 const getIngredientes = async (request, response) => {
@@ -429,6 +458,8 @@ export {
   updateUser,
   deleteUser,
   signup,
+  forgotPassword,
+  updatePassword,
   getIngredientes,
   getIngredienteById,
   getIngredienteByType,

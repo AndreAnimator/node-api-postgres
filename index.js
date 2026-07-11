@@ -14,7 +14,7 @@ var whitelist = ['http://localhost:8100', "http://localhost:8100/login"]
 app.use(
   cors({
     origin: function(origin, callback) {
-      if (whitelist.indexOf(origin) !== -1) {
+      if (!origin || whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -94,6 +94,8 @@ app.post('/logout', function(req, res, next){
     res.status(201).json(req.user);
   });
 });
+app.post('/send_recovery_email', db.forgotPassword)
+app.put('/reset_password', db.updatePassword)
 // Ingredientes
 app.get('/ingredientes', db.getIngredientes)
 app.get('/ingredient/:id', db.getIngredienteById)
